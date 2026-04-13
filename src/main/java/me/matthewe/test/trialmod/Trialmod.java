@@ -73,8 +73,8 @@ public class Trialmod {
                 output.accept(EXAMPLE_ITEM.get());
             }).build());
 
-    public Trialmod(FMLJavaModLoadingContext context) {
-        IEventBus modEventBus = context.getModEventBus();
+    public Trialmod() {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
