@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -45,11 +44,6 @@ public class Trialmod {
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "trialmod" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // Creates a new Block with the id "trialmod:example_block", combining the namespace and path
-    public static final RegistryObject<Block> EXAMPLE_BLOCK = BLOCKS.register("example_block", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
-    // Creates a new BlockItem with the id "trialmod:example_block", combining the namespace and path
-    public static final RegistryObject<Item> EXAMPLE_BLOCK_ITEM = ITEMS.register("example_block", () -> new BlockItem(EXAMPLE_BLOCK.get(), new Item.Properties()));
-
     // A custom storage-style block crafted from charcoal, with its own texture/model/recipe.
     public static final RegistryObject<Block> CHARCOAL_BLOCK = BLOCKS.register("charcoal_block", () -> new Block(BlockBehaviour.Properties.of()
             .mapColor(MapColor.COLOR_BLACK)
@@ -58,19 +52,13 @@ public class Trialmod {
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> CHARCOAL_BLOCK_ITEM = ITEMS.register("charcoal_block", () -> new BlockItem(CHARCOAL_BLOCK.get(), new Item.Properties()));
 
-    // Creates a new food item with the id "trialmod:example_id", nutrition 1 and saturation 2
-    public static final RegistryObject<Item> EXAMPLE_ITEM = ITEMS.register("example_item", () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
-            .alwaysEat().nutrition(1).saturationMod(2f).build())));
-
     // Dedicated mod tab that groups all mod content and uses charcoal block as icon.
     public static final RegistryObject<CreativeModeTab> TRIALMOD_TAB = CREATIVE_MODE_TABS.register("trialmod_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("creativetab.trialmod.trialmod_tab"))
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
             .icon(() -> CHARCOAL_BLOCK_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(EXAMPLE_BLOCK_ITEM.get());
                 output.accept(CHARCOAL_BLOCK_ITEM.get());
-                output.accept(EXAMPLE_ITEM.get());
             }).build());
 
     public Trialmod() {

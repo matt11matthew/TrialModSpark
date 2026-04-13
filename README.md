@@ -4,9 +4,9 @@ A Minecraft Forge mod that adds a custom **Charcoal Block** (`trialmod:charcoal_
 
 ## Dependencies
 
-- Minecraft `1.20.1`
-- Forge `47.3.0`
-- Java `17`
+- Minecraft `26.1.2`
+- Forge `64.0.1`
+- Java `25`
 
 ## Setup (Development)
 
@@ -32,7 +32,7 @@ Set-Location "C:\Mods\TrialMod"
 
 - Registry name: `trialmod:charcoal_block`
 - Type: Placeable block + block item
-- Creative tab: Building Blocks
+- Creative tab: Trial Mod (custom tab)
 - Custom texture: `assets/trialmod/textures/block/charcoal_block.png`
 
 ### Crafting Recipe
@@ -57,7 +57,7 @@ Typical filename:
 
 ## Install (Player)
 
-1. Install Minecraft Forge `47.3.0` for Minecraft `1.20.1`.
+1. Install Minecraft Forge `64.0.1` for Minecraft `26.1.2`.
 2. Copy the built JAR from `build/libs/` into your Minecraft `mods` folder.
 3. Start Minecraft with the Forge profile.
 
