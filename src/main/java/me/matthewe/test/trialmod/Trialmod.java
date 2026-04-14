@@ -17,7 +17,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.bus.BusGroup;
+import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
+import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -63,57 +65,28 @@ public class Trialmod {
                 output.accept(CHARCOAL_BLOCK_ITEM.get());
             }).build());
 
-    public Trialmod() {
-        BusGroup modBusGroup = FMLJavaModLoadingContext.get().getModBusGroup();
+    public Trialmod(FMLJavaModLoadingContext context) {
+        // 1. Get the new BusGroup from the context
+        var modBusGroup = context.getModBusGroup();
 
-        // Register the commonSetup method for modloading
+        // 2. Register this class to the modBusGroup using MethodHandles (EventBus 7 standard)
         modBusGroup.register(MethodHandles.lookup(), this);
 
-        // Register the Deferred Register to the mod event bus so blocks get registered
+        // (Optional alternative: If you prefer listener additions over @SubscribeEvent annotations for lifecycle events)
+        // FMLCommonSetupEvent.getBus(modBusGroup).addListener(this::commonSetup);
+
+        // 3. Register the Deferred Registers directly to the BusGroup
         BLOCKS.register(modBusGroup);
-        // Register the Deferred Register to the mod event bus so items get registered
         ITEMS.register(modBusGroup);
-        // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modBusGroup);
 
-        // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
+        // 4. Register for server and game events on the main Forge bus
+        MinecraftForge.EVENT_BUS.register(MethodHandles.lookup(), this);
 
-        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-    }
-
-    @SubscribeEvent
-    private void commonSetup(final FMLCommonSetupEvent event) {
-        // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
-        LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
-
-        if (Config.logDirtBlock)
-            LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
-
-        LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
-
-        Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
+        // 5. Register configs directly through the context object now
+        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
-    }
 
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents {
-
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event) {
-            // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-        }
-    }
 }
