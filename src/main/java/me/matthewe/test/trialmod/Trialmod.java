@@ -1,29 +1,20 @@
 package me.matthewe.test.trialmod;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier; // The 1.21.11 Replacement!
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.bus.BusGroup;
-import net.minecraftforge.eventbus.api.bus.EventBus;
-import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -31,15 +22,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandles;
-
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod(Trialmod.MODID)
 public class Trialmod {
 
-    // Define mod id in a common place for everything to reference
     public static final String MODID = "trialmod";
-    // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Create Deferred Registers
@@ -47,14 +33,18 @@ public class Trialmod {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // A custom storage-style block crafted from charcoal
+    // 1.21.11 FIX: ResourceLocation is now Identifier!
     public static final RegistryObject<Block> CHARCOAL_BLOCK = BLOCKS.register("charcoal_block", () -> new Block(BlockBehaviour.Properties.of()
             .mapColor(MapColor.COLOR_BLACK)
             .strength(5.0f, 6.0f)
             .sound(SoundType.STONE)
-            .requiresCorrectToolForDrops()));
+            .requiresCorrectToolForDrops()
+            .setId(ResourceKey.create(Registries.BLOCK, Identifier.parse(MODID + ":charcoal_block")))));
 
-    public static final RegistryObject<Item> CHARCOAL_BLOCK_ITEM = ITEMS.register("charcoal_block", () -> new BlockItem(CHARCOAL_BLOCK.get(), new Item.Properties()));
+    // 1.21.11 FIX: ResourceLocation is now Identifier!
+    public static final RegistryObject<Item> CHARCOAL_BLOCK_ITEM = ITEMS.register("charcoal_block", () -> new BlockItem(CHARCOAL_BLOCK.get(), new Item.Properties()
+            .setId(ResourceKey.create(Registries.ITEM, Identifier.parse(MODID + ":charcoal_block")))
+            .useBlockDescriptionPrefix()));
 
     // Dedicated mod tab
     public static final RegistryObject<CreativeModeTab> TRIALMOD_TAB = CREATIVE_MODE_TABS.register("trialmod_tab", () -> CreativeModeTab.builder()
@@ -66,32 +56,24 @@ public class Trialmod {
             }).build());
 
     public Trialmod(FMLJavaModLoadingContext context) {
+        // Grab the active BusGroup
         var modBusGroup = context.getModBusGroup();
 
-        // 1. Register specific MOD events manually (Bypasses the scanner)
+        // 1. Mod Bus Setup
         FMLCommonSetupEvent.getBus(modBusGroup).addListener(this::commonSetup);
-
-        // 2. Attach your registries to the Mod Bus
         BLOCKS.register(modBusGroup);
         ITEMS.register(modBusGroup);
         CREATIVE_MODE_TABS.register(modBusGroup);
 
-        // 3. Register THIS entire class to the FORGE Bus.
-        // Now, it will ONLY look for @SubscribeEvent methods meant for the game.
-        MinecraftForge.EVENT_BUS.register(MethodHandles.lookup(), this);
-
-        // 4. Register config
-        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        // 2. Forge Bus Setup
+        ServerStartingEvent.BUS.addListener(this::onServerStarting);
     }
 
-    // NOTICE: No @SubscribeEvent annotation here! We registered it manually.
     private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("HELLO FROM COMMON SETUP");
     }
 
-    // NOTICE: We keep @SubscribeEvent here so the Forge Bus scanner catches it.
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
+    private void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("HELLO from server starting");
     }
 }
