@@ -41,22 +41,22 @@ public class Trialmod {
     public static final String MODID = "trialmod";
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
-    // Create a Deferred Register to hold Blocks which will all be registered under the "trialmod" namespace
+
+    // Create Deferred Registers
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
-    // Create a Deferred Register to hold Items which will all be registered under the "trialmod" namespace
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "trialmod" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // A custom storage-style block crafted from charcoal, with its own texture/model/recipe.
+    // A custom storage-style block crafted from charcoal
     public static final RegistryObject<Block> CHARCOAL_BLOCK = BLOCKS.register("charcoal_block", () -> new Block(BlockBehaviour.Properties.of()
             .mapColor(MapColor.COLOR_BLACK)
             .strength(5.0f, 6.0f)
             .sound(SoundType.STONE)
             .requiresCorrectToolForDrops()));
+
     public static final RegistryObject<Item> CHARCOAL_BLOCK_ITEM = ITEMS.register("charcoal_block", () -> new BlockItem(CHARCOAL_BLOCK.get(), new Item.Properties()));
 
-    // Dedicated mod tab that groups all mod content and uses charcoal block as icon.
+    // Dedicated mod tab
     public static final RegistryObject<CreativeModeTab> TRIALMOD_TAB = CREATIVE_MODE_TABS.register("trialmod_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("creativetab.trialmod.trialmod_tab"))
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
@@ -64,34 +64,34 @@ public class Trialmod {
             .displayItems((parameters, output) -> {
                 output.accept(CHARCOAL_BLOCK_ITEM.get());
             }).build());
-    @SubscribeEvent
-    public void commonSetup(final FMLCommonSetupEvent event) {
-        LOGGER.info("HELLO FROM COMMON SETUP");
-    }
 
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        LOGGER.info("HELLO from server starting");
-    }
     public Trialmod(FMLJavaModLoadingContext context) {
-        // 1. Get the BusGroup
         var modBusGroup = context.getModBusGroup();
 
-        // 2. Register THIS class so @SubscribeEvent methods (commonSetup) work
-        // Using MethodHandles is the new requirement for performance
-        modBusGroup.register(MethodHandles.lookup(), this);
+        // 1. Register specific MOD events manually (Bypasses the scanner)
+        FMLCommonSetupEvent.getBus(modBusGroup).addListener(this::commonSetup);
 
-        // 3. Register your DeferredRegisters to the modBusGroup
+        // 2. Attach your registries to the Mod Bus
         BLOCKS.register(modBusGroup);
         ITEMS.register(modBusGroup);
         CREATIVE_MODE_TABS.register(modBusGroup);
 
-        // 4. Register for ServerStartingEvent (which sits on the Forge Bus, not Mod Bus)
+        // 3. Register THIS entire class to the FORGE Bus.
+        // Now, it will ONLY look for @SubscribeEvent methods meant for the game.
         MinecraftForge.EVENT_BUS.register(MethodHandles.lookup(), this);
 
-        // 5. Register config
+        // 4. Register config
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
+    // NOTICE: No @SubscribeEvent annotation here! We registered it manually.
+    private void commonSetup(final FMLCommonSetupEvent event) {
+        LOGGER.info("HELLO FROM COMMON SETUP");
+    }
 
+    // NOTICE: We keep @SubscribeEvent here so the Forge Bus scanner catches it.
+    @SubscribeEvent
+    public void onServerStarting(ServerStartingEvent event) {
+        LOGGER.info("HELLO from server starting");
+    }
 }
