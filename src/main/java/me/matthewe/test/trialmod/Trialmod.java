@@ -74,24 +74,24 @@ public class Trialmod {
         LOGGER.info("HELLO from server starting");
     }
     public Trialmod(FMLJavaModLoadingContext context) {
+        // 1. Get the BusGroup
         var modBusGroup = context.getModBusGroup();
 
-        // REMOVE THIS LINE if you don't have @SubscribeEvent methods in this class:
-        // modBusGroup.register(MethodHandles.lookup(), this);
+        // 2. Register THIS class so @SubscribeEvent methods (commonSetup) work
+        // Using MethodHandles is the new requirement for performance
+        modBusGroup.register(MethodHandles.lookup(), this);
 
-        // USE THIS INSTEAD to point to your method:
-        FMLCommonSetupEvent.getBus(modBusGroup).addListener(this::commonSetup);
-
+        // 3. Register your DeferredRegisters to the modBusGroup
         BLOCKS.register(modBusGroup);
         ITEMS.register(modBusGroup);
         CREATIVE_MODE_TABS.register(modBusGroup);
 
-        // Same for the Forge Bus - only register if you have @SubscribeEvent methods
-        // MinecraftForge.EVENT_BUS.register(MethodHandles.lookup(), this);
+        // 4. Register for ServerStartingEvent (which sits on the Forge Bus, not Mod Bus)
+        MinecraftForge.EVENT_BUS.register(MethodHandles.lookup(), this);
 
+        // 5. Register config
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
-
 
 
 }
