@@ -16,8 +16,8 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -28,6 +28,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
+
+import java.lang.invoke.MethodHandles;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(Trialmod.MODID)
@@ -62,17 +64,17 @@ public class Trialmod {
             }).build());
 
     public Trialmod() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        BusGroup modBusGroup = FMLJavaModLoadingContext.get().getModBusGroup();
 
         // Register the commonSetup method for modloading
-        modEventBus.addListener(this::commonSetup);
+        modBusGroup.register(MethodHandles.lookup(), this);
 
         // Register the Deferred Register to the mod event bus so blocks get registered
-        BLOCKS.register(modEventBus);
+        BLOCKS.register(modBusGroup);
         // Register the Deferred Register to the mod event bus so items get registered
-        ITEMS.register(modEventBus);
+        ITEMS.register(modBusGroup);
         // Register the Deferred Register to the mod event bus so tabs get registered
-        CREATIVE_MODE_TABS.register(modEventBus);
+        CREATIVE_MODE_TABS.register(modBusGroup);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -81,6 +83,7 @@ public class Trialmod {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
+    @SubscribeEvent
     private void commonSetup(final FMLCommonSetupEvent event) {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");

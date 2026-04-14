@@ -4,14 +4,14 @@ A Minecraft Forge mod that adds a custom **Charcoal Block** (`trialmod:charcoal_
 
 ## Dependencies
 
-- Minecraft `26.1.2`
-- Forge `64.0.1`
-- Java `25`
+- Minecraft `1.21.11`
+- Forge `61.1.5`
+- Java `21`
 
 ## Setup (Development)
 
 1. Open the project in IntelliJ IDEA.
-2. Ensure Gradle JVM is Java 17.
+2. Ensure Gradle JVM is Java 21.
 3. Build once to download dependencies.
 
 ```powershell
@@ -57,7 +57,7 @@ Typical filename:
 
 ## Install (Player)
 
-1. Install Minecraft Forge `64.0.1` for Minecraft `26.1.2`.
+1. Install Minecraft Forge `61.1.5` for Minecraft `1.21.11`.
 2. Copy the built JAR from `build/libs/` into your Minecraft `mods` folder.
 3. Start Minecraft with the Forge profile.
 
