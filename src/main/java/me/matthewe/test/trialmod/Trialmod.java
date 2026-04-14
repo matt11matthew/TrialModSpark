@@ -64,26 +64,31 @@ public class Trialmod {
             .displayItems((parameters, output) -> {
                 output.accept(CHARCOAL_BLOCK_ITEM.get());
             }).build());
+    @SubscribeEvent
+    public void commonSetup(final FMLCommonSetupEvent event) {
+        LOGGER.info("HELLO FROM COMMON SETUP");
+    }
 
+    @SubscribeEvent
+    public void onServerStarting(ServerStartingEvent event) {
+        LOGGER.info("HELLO from server starting");
+    }
     public Trialmod(FMLJavaModLoadingContext context) {
-        // 1. Get the new BusGroup from the context
         var modBusGroup = context.getModBusGroup();
 
-        // 2. Register this class to the modBusGroup using MethodHandles (EventBus 7 standard)
-        modBusGroup.register(MethodHandles.lookup(), this);
+        // REMOVE THIS LINE if you don't have @SubscribeEvent methods in this class:
+        // modBusGroup.register(MethodHandles.lookup(), this);
 
-        // (Optional alternative: If you prefer listener additions over @SubscribeEvent annotations for lifecycle events)
-        // FMLCommonSetupEvent.getBus(modBusGroup).addListener(this::commonSetup);
+        // USE THIS INSTEAD to point to your method:
+        FMLCommonSetupEvent.getBus(modBusGroup).addListener(this::commonSetup);
 
-        // 3. Register the Deferred Registers directly to the BusGroup
         BLOCKS.register(modBusGroup);
         ITEMS.register(modBusGroup);
         CREATIVE_MODE_TABS.register(modBusGroup);
 
-        // 4. Register for server and game events on the main Forge bus
-        MinecraftForge.EVENT_BUS.register(MethodHandles.lookup(), this);
+        // Same for the Forge Bus - only register if you have @SubscribeEvent methods
+        // MinecraftForge.EVENT_BUS.register(MethodHandles.lookup(), this);
 
-        // 5. Register configs directly through the context object now
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
